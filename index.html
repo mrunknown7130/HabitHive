@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Habit Tracker</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+
+        body {
+            background-color: #f5f5f5;
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background-color: white;
+            padding: clamp(1rem, 3vw, 2rem);
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .habit-form {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        input[type="text"] {
+            flex: 1;
+            padding: 0.8rem;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        button:hover {
+            background-color: #2980b9;
+        }
+
+        .habits-list {
+            list-style: none;
+        }
+
+        .habit-item {
+            background-color: #f8f9fa;
+            padding: 1rem;
+            margin-bottom: 0.5rem;
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .habit-info {
+            flex: 1;
+        }
+
+        .habit-name {
+            font-weight: bold;
+            color: #2c3e50;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1.1rem;
+        }
+
+        .habit-streak {
+            color: #666;
+            font-size: 0.9rem;
+            margin-top: 0.3rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .habit-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .check-btn {
+            background-color: #2ecc71;
+        }
+
+        .check-btn:hover {
+            background-color: #27ae60;
+        }
+
+        .delete-btn {
+            background-color: #e74c3c;
+        }
+
+        .delete-btn:hover {
+            background-color: #c0392b;
+        }
+
+        .date-section {
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .current-date {
+            font-size: 1.5rem;
+            color: #2c3e50;
+            margin-bottom: 1rem;
+            font-weight: bold;
+        }
+
+        .week-days {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: clamp(5px, 1vw, 10px);
+            margin-bottom: 1rem;
+        }
+
+        .day-card {
+            background-color: #fff;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: clamp(0.3rem, 1vw, 0.5rem);
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .day-name {
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .day-date {
+            color: #666;
+            font-size: 0.9rem;
+            margin-top: 0.2rem;
+        }
+
+        .current-day {
+            background-color: #3498db;
+            color: white;
+        }
+
+        .current-day .day-name,
+        .current-day .day-date {
+            color: white;
+        }
+
+        .monthly-history {
+            margin-top: 3rem;
+            padding-top: 2rem;
+            border-top: 1px solid #eee;
+        }
+
+        .monthly-history h2 {
+            color: #2c3e50;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 8px;
+            margin-top: 1rem;
+            padding: 1rem;
+            border-radius: 8px;
+        }
+
+        .calendar-day {
+            aspect-ratio: 1/1;
+            width: 100%;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            padding: 0.5rem;
+            min-height: 45px;
+            border: 1px solid #e0e0e0;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            cursor: pointer;
+        }
+
+        .calendar-header {
+            text-align: center;
+            padding: 10px 0;
+            font-size: 1rem;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .calendar-day .date {
+            font-size: 1rem;
+            font-weight: 500;
+            color: #2c3e50;
+        }
+
+        .calendar-day.completed {
+            background-color: #2ecc71;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+        }
+
+        .calendar-day.today {
+            border: 2px solid #3498db;
+            background-color: #2c3e50;
+        }
+
+        .calendar-day.today .date {
+            color: #ffffff;
+            font-weight: bold;
+        }
+
+        .calendar-day.completed .date {
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        /* Split view for PC */
+        @media (min-width: 768px) {
+            .tracker-content {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 2rem;
+                margin-top: 2rem;
+            }
+
+            .habits-section {
+                padding-right: 2rem;
+                border-right: 1px solid #eee;
+            }
+
+            .monthly-history {
+                margin-top: 0;
+                padding-top: 0;
+                border-top: none;
+            }
+        }
+
+        /* Mobile optimizations */
+        @media (max-width: 767px) {
+            body {
+                padding: 1rem;
+            }
+
+            .habit-form {
+                flex-direction: column;
+            }
+
+            .habit-form button {
+                margin-top: 0.5rem;
+                padding: 1rem;
+            }
+
+            .habit-item {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+
+            .habit-actions {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .habit-actions button {
+                padding: 1rem 2rem;
+            }
+
+            .day-card {
+                min-width: unset;
+            }
+
+            .current-date {
+                font-size: clamp(1.1rem, 4vw, 1.5rem);
+            }
+        }
+
+        /* Enhanced visual feedback */
+        .habit-item {
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .habit-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .check-btn, .delete-btn {
+            transition: transform 0.2s;
+        }
+
+        .check-btn:active, .delete-btn:active {
+            transform: scale(0.95);
+        }
+
+        /* Loading state */
+        .loading {
+            opacity: 0.7;
+            pointer-events: none;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .habit-item {
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .check-btn, .delete-btn {
+            font-size: 1.2rem;
+            padding: 0.5rem 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .completion-emoji {
+            font-size: 0.8em;
+        }
+
+        /* Animation for emojis */
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-3px); }
+        }
+
+        .habit-streak span {
+            display: inline-block;
+            animation: bounce 1s ease infinite;
+        }
+
+        .completion-emoji {
+            animation: bounce 1s ease infinite;
+        }
+
+        /* Theme Toggle Button */
+        .theme-toggle {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+        }
+
+        .theme-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 50%;
+            transition: transform 0.3s ease;
+        }
+
+        .theme-btn:hover {
+            transform: rotate(360deg);
+        }
+
+        .dark-icon {
+            display: none;
+        }
+
+        /* Dark Theme Styles */
+        [data-theme="dark"] {
+            background-color: #1a1a1a;
+        }
+
+        [data-theme="dark"] .container {
+            background-color: #2d2d2d;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        [data-theme="dark"] h1,
+        [data-theme="dark"] h2,
+        [data-theme="dark"] .current-date,
+        [data-theme="dark"] .habit-name {
+            color: #ffffff;
+        }
+
+        [data-theme="dark"] .habit-streak,
+        [data-theme="dark"] .calendar-header,
+        [data-theme="dark"] .day-date {
+            color: #b0b0b0;
+        }
+
+        [data-theme="dark"] input[type="text"] {
+            background-color: #3d3d3d;
+            border-color: #4d4d4d;
+            color: #ffffff;
+        }
+
+        [data-theme="dark"] .habit-item {
+            background-color: #3d3d3d;
+        }
+
+        [data-theme="dark"] .day-card {
+            background-color: #3d3d3d;
+            border-color: #4d4d4d;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        [data-theme="dark"] .calendar-day {
+            background-color: #3d3d3d;
+            border: 1px solid #4d4d4d;
+            transition: all 0.2s ease;
+        }
+
+        [data-theme="dark"] .calendar-day:hover {
+            background-color: #4d4d4d;
+        }
+
+        [data-theme="dark"] .calendar-day.completed {
+            background-color: #27ae60; /* Darker green for dark theme */
+            border-color: #2ecc71;
+            color: white;
+        }
+
+        [data-theme="dark"] .calendar-day.completed .date,
+        [data-theme="dark"] .calendar-day.completed .completion-emoji {
+            color: white;
+        }
+
+        /* Add a subtle glow effect for completed days in dark theme */
+        [data-theme="dark"] .calendar-day.completed {
+            box-shadow: 0 0 8px rgba(46, 204, 113, 0.3);
+        }
+
+        /* Hover effect for completed days */
+        [data-theme="dark"] .calendar-day.completed:hover {
+            background-color: #2ecc71;
+            transform: scale(1.05);
+            transition: all 0.2s ease;
+        }
+
+        [data-theme="dark"] .light-icon {
+            display: none;
+        }
+
+        [data-theme="dark"] .dark-icon {
+            display: inline;
+        }
+
+        [data-theme="dark"] .habits-section {
+            border-right-color: #4d4d4d;
+        }
+
+        [data-theme="dark"] .monthly-history {
+            border-top-color: #4d4d4d;
+        }
+
+        /* Dark theme button hover states */
+        [data-theme="dark"] button:not(.theme-btn):hover {
+            filter: brightness(1.2);
+        }
+
+        /* Update the day-name styles for dark theme */
+        [data-theme="dark"] .day-name {
+            color: #ffffff; /* Bright white color for better visibility */
+        }
+
+        /* Improve contrast for the current day in dark theme */
+        [data-theme="dark"] .current-day {
+            background-color: #2980b9; /* Brighter blue for dark theme */
+            border: 2px solid #3498db;
+        }
+
+        [data-theme="dark"] .current-day .day-name,
+        [data-theme="dark"] .current-day .day-date {
+            color: #ffffff;
+        }
+
+        /* Add subtle hover effect for day cards in dark theme */
+        [data-theme="dark"] .day-card:hover {
+            background-color: #4d4d4d;
+        }
+
+        .calendar-day.empty {
+            background: none;
+            border: none;
+            box-shadow: none;
+        }
+
+        [data-theme="dark"] .calendar-day.empty {
+            background: none;
+            border: none;
+            box-shadow: none;
+        }
+
+        /* Dark theme calendar date improvements */
+        [data-theme="dark"] .calendar-day .date {
+            color: #ffffff; /* Bright white for better visibility */
+            font-weight: 500;
+        }
+
+        /* Improve calendar headers in dark theme */
+        [data-theme="dark"] .calendar-header {
+            color: #ffffff;
+            font-weight: 600;
+            opacity: 0.9;
+        }
+
+        /* Enhance today's date visibility */
+        [data-theme="dark"] .calendar-day.today {
+            border: 2px solid #3498db;
+            background-color: #2c3e50;
+        }
+
+        [data-theme="dark"] .calendar-day.today .date {
+            color: #ffffff;
+            font-weight: bold;
+        }
+
+        /* Empty day styles */
+        .calendar-day.empty {
+            background: none;
+            border: none;
+            box-shadow: none;
+            visibility: hidden; /* Hide empty days but maintain grid structure */
+        }
+
+        /* Dark theme calendar improvements */
+        [data-theme="dark"] .calendar-day {
+            background-color: #3d3d3d;
+            border: 1px solid #4d4d4d;
+        }
+
+        [data-theme="dark"] .calendar-day.empty {
+            background: none;
+            border: none;
+            box-shadow: none;
+        }
+
+        /* Responsive calendar sizing */
+        @media (max-width: 768px) {
+            .calendar-day {
+                min-height: 35px;
+                padding: 0.3rem;
+            }
+        }
+
+        @media (min-width: 769px) {
+            .calendar-day {
+                min-height: 45px;
+            }
+        }
+
+        /* Dark theme calendar improvements */
+        [data-theme="dark"] .calendar-grid {
+            background-color: #252525;
+            border: 1px solid #404040;
+        }
+
+        [data-theme="dark"] .calendar-day {
+            background-color: #333333;
+            border: 1px solid #404040;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        [data-theme="dark"] .calendar-day:hover {
+            background-color: #404040;
+            transform: translateY(-2px);
+        }
+
+        [data-theme="dark"] .calendar-header {
+            color: #ffffff;
+            opacity: 0.9;
+        }
+
+        [data-theme="dark"] .calendar-day .date {
+            color: #ffffff;
+            font-weight: 500;
+        }
+
+        [data-theme="dark"] .calendar-day.completed {
+            background-color: #27ae60;
+            border-color: #2ecc71;
+            box-shadow: 0 0 10px rgba(46, 204, 113, 0.3);
+        }
+
+        [data-theme="dark"] .calendar-day.today {
+            background-color: #2c3e50;
+            border: 2px solid #3498db;
+            box-shadow: 0 0 10px rgba(52, 152, 219, 0.3);
+        }
+
+        /* Empty day improvements */
+        .calendar-day.empty {
+            background: none;
+            border: none;
+            box-shadow: none;
+            visibility: hidden;
+        }
+
+        [data-theme="dark"] .calendar-day.empty {
+            background: none;
+            border: none;
+            box-shadow: none;
+        }
+
+        /* Completion emoji styles */
+        .completion-emoji {
+            font-size: 1rem;
+            margin-top: 2px;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .calendar-grid {
+                gap: 4px;
+                padding: 0.5rem;
+            }
+
+            .calendar-day {
+                min-height: 40px;
+                padding: 0.3rem;
+            }
+
+            .calendar-day .date {
+                font-size: 0.9rem;
+            }
+
+            .completion-emoji {
+                font-size: 0.9rem;
+            }
+        }
+
+        /* Add hover effect for light theme */
+        .calendar-day:hover {
+            background-color: #f0f0f0;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Completed day hover effect in light theme */
+        .calendar-day.completed:hover {
+            background-color: #27ae60;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(46, 204, 113, 0.3);
+        }
+
+        /* Today's date hover effect in light theme */
+        .calendar-day.today:hover {
+            background-color: #3498db;
+            box-shadow: 0 4px 8px rgba(52, 152, 219, 0.3);
+        }
+
+        /* Ensure empty days don't show hover effects */
+        .calendar-day.empty:hover {
+            background: none;
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* Base styles for today's date box */
+        .calendar-day.today {
+            border: 2px solid #3498db;
+            background-color: #3498db;
+            color: white;
+            transition: all 0.2s ease;
+        }
+
+        .calendar-day.today .date {
+            color: white;
+            font-weight: bold;
+        }
+
+        /* Hover effect for today's date in both themes */
+        .calendar-day.today:hover {
+            background-color: #27ae60;
+            border-color: #2ecc71;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(46, 204, 113, 0.3);
+        }
+
+        /* Dark theme specific styles */
+        [data-theme="dark"] .calendar-day.today {
+            background-color: #2c3e50;
+            border: 2px solid #3498db;
+        }
+
+        [data-theme="dark"] .calendar-day.today:hover {
+            background-color: #27ae60;
+            border-color: #2ecc71;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(46, 204, 113, 0.3);
+        }
+
+        /* Base calendar day hover effects */
+        .calendar-day {
+            aspect-ratio: 1/1;
+            width: 100%;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            padding: 0.5rem;
+            min-height: 45px;
+            border: 1px solid #e0e0e0;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            cursor: pointer;
+        }
+
+        /* Light theme hover effects */
+        .calendar-day:not(.empty):hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            background-color: #f0f0f0;
+        }
+
+        .calendar-day.completed:hover {
+            background-color: #2ecc71;
+            border-color: #27ae60;
+            box-shadow: 0 4px 12px rgba(46, 204, 113, 0.3);
+        }
+
+        .calendar-day.today:hover {
+            background-color: #27ae60;
+            border-color: #2ecc71;
+            box-shadow: 0 4px 12px rgba(46, 204, 113, 0.3);
+        }
+
+        /* Dark theme hover effects */
+        [data-theme="dark"] .calendar-day:not(.empty):hover {
+            transform: translateY(-3px);
+            background-color: #404040;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        [data-theme="dark"] .calendar-day.completed:hover {
+            background-color: #2ecc71;
+            border-color: #27ae60;
+            box-shadow: 0 4px 12px rgba(46, 204, 113, 0.3);
+        }
+
+        /* Empty day styles - no hover effects */
+        .calendar-day.empty,
+        .calendar-day.empty:hover,
+        [data-theme="dark"] .calendar-day.empty,
+        [data-theme="dark"] .calendar-day.empty:hover {
+            background: none;
+            border: none;
+            box-shadow: none;
+            transform: none;
+            cursor: default;
+            visibility: hidden;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="date-section">
+            <div class="current-date"></div>
+            <div class="week-days"></div>
+        </div>
+        <div class="theme-toggle">
+            <button id="themeToggle" class="theme-btn">
+                <span class="light-icon">🌞</span>
+                <span class="dark-icon">🌙</span>
+            </button>
+        </div>
+        <h1>Habit Tracker</h1>
+        
+        <div class="tracker-content">
+            <div class="habits-section">
+                <div class="habit-form">
+                    <input type="text" id="habitInput" placeholder="Enter a new habit...">
+                    <button onclick="addHabit()">Add Habit</button>
+                </div>
+
+                <ul class="habits-list" id="habitsList">
+                    <!-- Habits will be added here dynamically -->
+                </ul>
+            </div>
+
+            <div class="monthly-history">
+                <h2>Monthly Overview</h2>
+                <div class="calendar-grid"></div>
+            </div>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
